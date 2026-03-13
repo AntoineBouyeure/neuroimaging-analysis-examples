@@ -1,0 +1,7 @@
+day	run	func	opp	session_ref
+day1	run1	/path/to/sub-01/ses-01/func_run1_POCS.nii.gz	/path/to/sub-01/ses-01/func_PA_run1_POCS.nii.gz	1
+day1	run2	/path/to/sub-01/ses-01/func_run2_POCS.nii.gz	/path/to/sub-01/ses-01/func_PA_run2_POCS.nii.gz	0
+day1	run3	/path/to/sub-01/ses-01/func_rest_POCS.nii.gz	/path/to/sub-01/ses-01/func_PA_rest_POCS.nii.gz	0
+day2	run4	/path/to/sub-01/ses-02/func_run3_POCS.nii.gz	/path/to/sub-01/ses-02/func_PA_run3_POCS.nii.gz	1
+day2	run5	/path/to/sub-01/ses-02/func_run4_POCS.nii.gz	/path/to/sub-01/ses-02/func_PA_run4_POCS.nii.gz	0
+day2	run6	/path/to/sub-01/ses-02/func_rest2_POCS.nii.gz	/path/to/sub-01/ses-02/func_PA_rest2_POCS.nii.gz	0
