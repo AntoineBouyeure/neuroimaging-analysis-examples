@@ -1,17 +1,46 @@
 
 # Neuroimaging Analysis Examples (7T MRI)
 
-Example workflows for **ultra‑high‑field (7T) neuroimaging analysis**, including preprocessing, laminar analysis, univariate modeling, multivariate analysis, representational similarity analysis (RSA), and connectivity analyses.
+Example workflows for **ultra‑high‑field (7T) neuroimaging analysis**, covering preprocessing, laminar analysis, univariate GLM modeling, multivariate pattern analysis, representational similarity analysis (RSA), connectivity analyses, and group‑level statistics.
 
-This repository illustrates modular strategies commonly used in high‑resolution cognitive and affective neuroscience studies.
-
-The code is organized into stages corresponding to different parts of a typical neuroimaging pipeline.
+The repository illustrates modular strategies commonly used in **high‑resolution cognitive and affective neuroscience studies**.  
+Scripts are organized according to the major stages of a typical neuroimaging analysis pipeline.
 
 ---
 
-# Overview
+![Layer‑fMRI pipeline](docs/figures/layer_pipeline.png)
 
-The repository demonstrates a full analysis workflow spanning:
+---
+
+# Quickstart
+
+Clone the repository:
+
+```bash
+git clone https://github.com/AntoineBouyeure/neuroimaging-analysis-examples.git
+cd neuroimaging-analysis-examples
+```
+
+Install Python dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Some modules require commonly used neuroimaging software:
+
+- ANTs  
+- FreeSurfer  
+- FSL  
+- LAYNII  
+
+These tools should be installed separately and available in your system environment.
+
+---
+
+# Overview of the Analysis Workflow
+
+The repository demonstrates a complete neuroimaging workflow spanning:
 
 1. Preprocessing of high‑resolution MRI data  
 2. Anatomical segmentation and spatial registration  
@@ -24,29 +53,33 @@ The repository demonstrates a full analysis workflow spanning:
 
 ---
 
-# Conceptual framework
+# Conceptual Framework
 
-Many analyses in this repository focus on **changes in neural representations** across experimental conditions.
+Many analyses in this repository focus on **changes in neural representations across experimental conditions**.
 
-Such representational measures are typically quantified using multivariate approaches such as **searchlight decoding, representational similarity analysis, and cross‑validated distance metrics**.
+These representational differences are commonly studied using multivariate methods such as:
+
+- searchlight decoding
+- representational similarity analysis (RSA)
+- cross‑validated distance metrics (e.g., crossnobis)
+
+Such approaches allow researchers to characterize how neural population codes evolve across stimuli, conditions, or experimental phases.
 
 ---
 
-# Layer‑fMRI processing pipeline
+# Layer‑Resolved fMRI Analyses
 
-The repository also contains example workflows for **layer‑resolved analysis of high‑resolution fMRI data**.
-
-![Layer‑fMRI pipeline](docs/figures/layer_pipeline.png)
+The repository also includes workflows for **layer‑resolved analysis of high‑resolution fMRI data**.
 
 Typical steps include:
 
-1. Upsampling anatomical images to increase segmentation precision  
-2. Growing **equivolume cortical layers** within the gray‑matter ribbon  
-3. Downsampling layers to functional resolution  
-4. Intersecting layer maps with region‑of‑interest masks  
+1. Upsampling anatomical images to improve segmentation precision  
+2. Generating **equivolume cortical layers** within the gray‑matter ribbon  
+3. Downsampling layer maps to functional resolution  
+4. Intersecting layer maps with region‑of‑interest (ROI) masks  
 5. Extracting layer‑specific signals within each ROI  
 
-These procedures enable investigation of **laminar‑specific neural computations**.
+These analyses allow investigation of **laminar‑specific neural computations**.
 
 ---
 
@@ -56,27 +89,21 @@ These procedures enable investigation of **laminar‑specific neural computation
 neuroimaging-analysis-examples
 │
 ├── preprocessing/
-│
 ├── registration/
 │   ├── template/
 │   └── freesurfer/
-│
 ├── layers/
-│
 ├── first_level/
-│
 ├── second_level/
-│
 ├── multivariate/
 │   ├── rsa/
 │   ├── searchlight/
 │   ├── lss/
 │   └── connectivity/
-│
 └── group_stats/
 ```
 
-Each module contains scripts implementing one stage of the analysis workflow.
+Each module corresponds to one stage of the analysis pipeline.
 
 ---
 
@@ -88,11 +115,11 @@ Scripts for preprocessing high‑resolution fMRI data.
 
 Typical operations:
 
-* motion estimation
-* run‑to‑run alignment
-* anatomical registration
-* brain extraction
-* reslicing and interpolation
+- motion estimation
+- run‑to‑run alignment
+- anatomical registration
+- brain extraction
+- reslicing and interpolation
 
 Example outputs:
 
@@ -102,7 +129,7 @@ motion_parameters.tsv
 aligned_run_func.nii.gz
 ```
 
-The preprocessing workflow aims to **minimize interpolation and preserve spatial resolution**, which is particularly important for high‑field imaging.
+The preprocessing workflow aims to **minimize interpolation and preserve spatial resolution**, which is particularly important for ultra‑high‑field imaging.
 
 ---
 
@@ -112,7 +139,7 @@ The preprocessing workflow aims to **minimize interpolation and preserve spatial
 
 Tools for anatomical segmentation and spatial normalization.
 
-## Template registration
+### Template Registration
 
 `registration/template/`
 
@@ -125,7 +152,7 @@ T1_to_template_Warped.nii.gz
 T1_to_template_0GenericAffine.mat
 ```
 
-## FreeSurfer segmentation
+### FreeSurfer Segmentation
 
 `registration/freesurfer/`
 
@@ -140,7 +167,7 @@ lh.white
 rh.pial
 ```
 
-These outputs serve as the basis for **ROI and layer analyses**.
+These outputs form the basis for **ROI and layer analyses**.
 
 ---
 
@@ -148,15 +175,15 @@ These outputs serve as the basis for **ROI and layer analyses**.
 
 `layers/`
 
-Scripts for extracting signals from cortical layers.
+Scripts for extracting and analyzing signals across cortical layers.
 
 Operations include:
 
-* generating equivolume cortical layers
-* intersecting layers with ROI masks
-* computing layer‑specific activation
-* performing layer‑specific RSA
-* comparing signals across layers
+- generating equivolume cortical layers
+- intersecting layers with ROI masks
+- extracting layer‑specific signals
+- performing layer‑specific RSA
+- comparing signals across layers
 
 Example outputs:
 
@@ -166,7 +193,7 @@ layer_signal_roi_dlPFC.csv
 layer_rsa_results.csv
 ```
 
-These analyses enable investigation of **laminar differences in neural processing**.
+These analyses allow investigation of **laminar differences in neural processing**.
 
 ---
 
@@ -176,12 +203,12 @@ These analyses enable investigation of **laminar differences in neural processin
 
 Subject‑level GLM analyses.
 
-Steps include:
+Typical steps:
 
-* creation of event/onset files
-* design matrix construction
-* GLM estimation
-* condition contrasts
+- creation of event/onset files
+- design matrix construction
+- GLM estimation
+- computation of condition contrasts
 
 Example outputs:
 
@@ -197,13 +224,13 @@ design_matrix.png
 
 `second_level/`
 
-Group‑level modeling and inference.
+Group‑level statistical modeling and inference.
 
 Typical analyses:
 
-* combining subject contrast maps
-* fixed‑effects models
-* permutation‑based inference
+- combining subject contrast maps
+- fixed‑effects or mixed‑effects modeling
+- permutation‑based inference
 
 Example outputs:
 
@@ -218,13 +245,13 @@ thresholded_cluster_map.nii.gz
 
 `multivariate/`
 
-Contains scripts implementing pattern‑based analyses.
+Scripts implementing pattern‑based analyses.
 
-## RSA
+### RSA
 
 `multivariate/rsa/`
 
-Computes representational similarity or cross‑validated distance matrices.
+Computes representational similarity matrices or cross‑validated distance measures.
 
 Example outputs:
 
@@ -233,7 +260,7 @@ rsa_matrix.npy
 crossnobis_distances.csv
 ```
 
-## Searchlight
+### Searchlight
 
 `multivariate/searchlight/`
 
@@ -246,7 +273,7 @@ searchlight_accuracy_map.nii.gz
 searchlight_rsa_map.nii.gz
 ```
 
-## LSS modeling
+### LSS Modeling
 
 `multivariate/lss/`
 
@@ -297,24 +324,46 @@ group_summary_plot.png
 
 Python packages commonly used:
 
-* numpy
-* scipy
-* pandas
-* nilearn
-* scikit‑learn
-* matplotlib / seaborn
+- numpy
+- scipy
+- pandas
+- nilearn
+- scikit‑learn
+- matplotlib
+- seaborn
 
-External neuroimaging tools:
+External neuroimaging software:
 
-* ANTs
-* FreeSurfer
-* FSL
-* LAYNII
+- ANTs
+- FreeSurfer
+- FSL
+- LAYNII
 
 ---
 
-# Notes
+# Citation
 
-This repository contains **example analysis workflows** illustrating neuroimaging data processing strategies.
+If you use code from this repository in academic work, please cite the repository.
 
-Dataset organization and parameters may require adaptation for specific studies.
+**Suggested citation:**
+
+Bouyeure, A. (2026). *Neuroimaging Analysis Examples: Workflows for ultra‑high‑field (7T) MRI analysis*.  
+GitHub repository:  
+https://github.com/AntoineBouyeure/neuroimaging-analysis-examples
+
+BibTeX:
+
+```bibtex
+@software{bouyeure_7t_neuroimaging_repo,
+  author = {Bouyeure, Antoine},
+  title = {Neuroimaging Analysis Examples: Workflows for ultra-high-field MRI analysis},
+  year = {2026},
+  url = {https://github.com/AntoineBouyeure/neuroimaging-analysis-examples}
+}
+```
+
+---
+
+# License
+
+This project is distributed under the **MIT License**.
