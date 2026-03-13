@@ -1,6 +1,10 @@
 
 #!/usr/bin/env python3
-"""First-level GLM example for 7T fear-extinction data."""
+"""First-level GLM for high-resolution fear-learning data.
+
+Supports run-wise subject-level modelling for acquisition or extinction sessions
+using event tables derived from the onset-preparation utilities in this folder.
+"""
 from __future__ import annotations
 import argparse
 from pathlib import Path
@@ -10,20 +14,14 @@ import pandas as pd
 import nibabel as nib
 from nilearn.glm.first_level import FirstLevelModel, make_first_level_design_matrix
 
-TR = 3.1
-N_SCANS = 316
+TR = 0
+N_SCANS = 0
+
 
 
 def build_events(onsets_df: pd.DataFrame) -> pd.DataFrame:
     cs = onsets_df.copy()
-    cs['onset'] = cs['CS_onset']
-    cs['duration'] = cs['CS_duration']
-    cs['trial_type'] = cs['CStype_new']
-
     us = onsets_df.copy()
-    us['onset'] = us['US_onset']
-    us['duration'] = us['US_duration']
-    us['trial_type'] = us['UStype_new']
 
     events = pd.concat([
         cs[['onset', 'duration', 'trial_type']],
@@ -42,16 +40,22 @@ def fit_run(
     cache_dir: Path | None,
     drift_model: str,
     drift_order: int,
+    session_label: str,
+    confounds_pattern: str,
+    onsets_pattern: str,
+    func_pattern: str,
     mask_img: str | None = None,
+    tr: float = TR,
+    n_scans: int = N_SCANS,
 ) -> None:
-    fmri_img_path = func_root / subject / 'ses02' / f'func_{run}_POCS_bbrreg_MotDistCor_anatomySpace.nii.gz'
-    confounds_path = confounds_dir / f'{subject}_confounds_fearext_{run}.csv'
-    onsets_path = onsets_dir / f'{subject}_onsets_fearext_part{run[-1]}.csv'
+    fmri_img_path = Path(str(func_pattern).format(func_root=func_root, subject=subject, session=session_label, run=run))
+    confounds_path = Path(str(confounds_pattern).format(confounds_dir=confounds_dir, subject=subject, run=run, session=session_label))
+    onsets_path = Path(str(onsets_pattern).format(onsets_dir=onsets_dir, subject=subject, run=run, session=session_label, part=run[-1]))
 
     confounds = pd.read_csv(confounds_path)
     onsets = pd.read_csv(onsets_path)
     events = build_events(onsets)
-    frame_times = np.arange(N_SCANS) * TR
+    frame_times = np.arange(n_scans) * tr
     design_matrix = make_first_level_design_matrix(
         frame_times,
         events=events,
@@ -63,7 +67,7 @@ def fit_run(
     )
 
     glm = FirstLevelModel(
-        t_r=TR,
+        t_r=tr,
         noise_model='ar1',
         standardize=True,
         hrf_model='glover',
@@ -98,7 +102,7 @@ def fit_run(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Run first-level GLM for 7T fear-extinction data.')
+    parser = argparse.ArgumentParser(description='Run first-level GLM for 7T fear-learning data.')
     parser.add_argument('--subjects', nargs='+', required=True)
     parser.add_argument('--runs', nargs='+', default=['run3', 'run4'])
     parser.add_argument('--func-root', required=True)
@@ -109,6 +113,12 @@ def main() -> None:
     parser.add_argument('--drift-model', choices=['cosine', 'polynomial'], default='polynomial')
     parser.add_argument('--drift-order', type=int, default=2)
     parser.add_argument('--mask-img', default=None)
+    parser.add_argument('--session-label', default='ses02')
+    parser.add_argument('--func-pattern', default='{func_root}/{subject}/{session}/func_{run}_POCS_bbrreg_MotDistCor_anatomySpace.nii.gz')
+    parser.add_argument('--confounds-pattern', default='{confounds_dir}/{subject}_confounds_fearext_{run}.csv')
+    parser.add_argument('--onsets-pattern', default='{onsets_dir}/{subject}_onsets_fearext_part{part}.csv')
+    parser.add_argument('--tr', type=float, default=TR)
+    parser.add_argument('--n-scans', type=int, default=N_SCANS)
     args = parser.parse_args()
 
     for subject in args.subjects:
@@ -123,7 +133,13 @@ def main() -> None:
                 cache_dir=Path(args.cache_dir) if args.cache_dir else None,
                 drift_model=args.drift_model,
                 drift_order=args.drift_order,
+                session_label=args.session_label,
+                confounds_pattern=args.confounds_pattern,
+                onsets_pattern=args.onsets_pattern,
+                func_pattern=args.func_pattern,
                 mask_img=args.mask_img,
+                tr=args.tr,
+                n_scans=args.n_scans,
             )
 
 
